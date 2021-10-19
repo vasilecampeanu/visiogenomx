@@ -1,8 +1,10 @@
 package com.visiogenomx.app.gui;
 
+import com.visiogenomx.app.interfaces.WindowUtils;
+
 import javax.swing.*;
 
-public class Window extends JFrame 
+public class Window extends JFrame implements WindowUtils
 {
     public Window()
     {
@@ -12,5 +14,11 @@ public class Window extends JFrame
         this.setLocationRelativeTo(null);
         this.setVisible(true);
         this.setTitle("Visiogenomx");
+    }
+
+    @Override
+    public void hello() 
+    {
+        System.out.println("Hello world!");
     }
 }

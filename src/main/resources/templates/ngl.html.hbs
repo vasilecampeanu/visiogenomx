@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>{{structureId}}</title>
+</head>
+<body>
+
+	<script src="{{url}}"></script>
+	<script src="/scripts/main.js"></script>
+
+	<script>
+        NGL.mainScriptFilePath = "{{url}}";
+
+        var stage;
+
+        document.onkeypress = function(e) { default_keypress(stage,e); };
+        
+        document.addEventListener( "DOMContentLoaded", function() {
+            stage = new NGL.Stage( "viewport" );
+            stage.setParameters({ backgroundColor:"black"} );
+            stage.loadFile( "/mmtf/{{structureId}}", { defaultRepresentation: false, ext:"mmtf" } ).then(function(o) {
+                console.log("Loaded {{structureId}}");
+                defaultNGLRepr(o);
+                o.centerView();
+            });
+        });
+	</script>
+	
+    <div id="viewport" style="width: 100vw; height: 100vh; display:block;"></div>
+
+    <style>
+        *
+        {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        body
+        {
+            overflow: hidden;
+        }
+    </style>
+
+</body>
+</html>

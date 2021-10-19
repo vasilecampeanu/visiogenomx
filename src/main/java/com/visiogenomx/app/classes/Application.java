@@ -1,7 +1,7 @@
 package com.visiogenomx.app.classes;
 
-import com.visiogenomx.app.gui.ButtonColumn;
-import com.visiogenomx.app.gui.Window;
+import com.visiogenomx.app.gui.*;
+import spark.template.handlebars.HandlebarsTemplateEngine;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static spark.Spark.*;
+
 public class Application 
 {
     /**
@@ -19,7 +21,18 @@ public class Application
     public Application()
     {
         this.connection = MySQL.createConnection("jdbc:mysql://localhost:3306/visiogenomx", "root", "");
-        this.window = new Window();
+
+        String os = System.getProperty("os.name").toLowerCase();
+        
+        if (os.contains("win")) {
+            this.window = new WindowWindows();
+        } else if (os.contains("osx")){
+            this.window = new WindowMacOS();
+         }
+        else if (os.contains("nix") || os.contains("aix") || os.contains("nux")){
+            this.window = new WindowLinux();
+        }
+        
         this.window.setVisible(true);
     }
 
@@ -42,7 +55,7 @@ public class Application
             {
                 data[index][0] = resultset.getInt("id");
                 data[index][1] = resultset.getString("mmtf");
-                data[index][2] = "View 3D structure" + resultset.getString("mmtf") + " protein";
+                data[index][2] = "View 3D structure";
                 index++;
             }
 
@@ -57,7 +70,13 @@ public class Application
                     JTable table = (JTable)e.getSource();
                     int modelRow = Integer.valueOf(e.getActionCommand());
                     ((DefaultTableModel)table.getModel()).getValueAt(modelRow, 1);
-                    System.out.println(((DefaultTableModel)table.getModel()).getValueAt(modelRow, 1));
+
+                    try {
+                        Process process = Runtime.getRuntime().exec("\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --app=http://localhost:8080/ngl/" + ((DefaultTableModel)table.getModel()).getValueAt(modelRow, 1) + " --new-window --window-size=760,760");
+                        process.waitFor();
+                    } catch (Exception er) {
+                        er.printStackTrace();
+                    }
                 }
             };
 
@@ -76,6 +95,11 @@ public class Application
     
     public void run()
     {
+        port(8080);
+        staticFileLocation("/static");
+        get(Routes.MMTF, new MMTFRoute());
+        get(Routes.NGL, new NGLRoute(), new HandlebarsTemplateEngine());
+        
         table();
     }
 
