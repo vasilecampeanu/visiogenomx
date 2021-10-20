@@ -99,7 +99,6 @@ public class Application
         staticFileLocation("/static");
         get(Routes.MMTF, new MMTFRoute());
         get(Routes.NGL, new NGLRoute(), new HandlebarsTemplateEngine());
-        
         table();
     }
 
