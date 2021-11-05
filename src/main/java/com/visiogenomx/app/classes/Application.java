@@ -26,10 +26,10 @@ public class Application
         
         if (os.contains("win")) {
             this.window = new WindowWindows();
-        } else if (os.contains("osx")){
+        } else if (os.contains("osx")) {
             this.window = new WindowMacOS();
-         }
-        else if (os.contains("nix") || os.contains("aix") || os.contains("nux")){
+        }
+        else if (os.contains("nix") || os.contains("aix") || os.contains("nux")) {
             this.window = new WindowLinux();
         }
         
