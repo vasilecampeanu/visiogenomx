@@ -6,7 +6,9 @@ import spark.template.handlebars.HandlebarsTemplateEngine;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -22,17 +24,7 @@ public class Application
     {
         this.connection = MySQL.createConnection("jdbc:mysql://localhost:3306/visiogenomx", "root", "");
 
-        String os = System.getProperty("os.name").toLowerCase();
-        
-        if (os.contains("win")) {
-            this.window = new WindowWindows();
-        } else if (os.contains("osx")) {
-            this.window = new WindowMacOS();
-        }
-        else if (os.contains("nix") || os.contains("aix") || os.contains("nux")) {
-            this.window = new WindowLinux();
-        }
-        
+        this.window = new WindowMacOS();
         this.window.setVisible(true);
     }
 
@@ -49,7 +41,7 @@ public class Application
             ResultSet resultset = statement.executeQuery(QUERY);
             
             int index = 0;
-            Object[][] data = new Object[30][3];
+            Object[][] data = new Object[29][3];
             
             while (resultset.next())
             {
@@ -72,8 +64,9 @@ public class Application
                     ((DefaultTableModel)table.getModel()).getValueAt(modelRow, 1);
 
                     try {
-                        Process process = Runtime.getRuntime().exec("\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --app=http://localhost:8080/ngl/" + ((DefaultTableModel)table.getModel()).getValueAt(modelRow, 1) + " --new-window --window-size=760,760");
-                        process.waitFor();
+                        String chromecmd = "open -a 'google chrome' --args --app=http://localhost:8080/ngl/" + ((DefaultTableModel)table.getModel()).getValueAt(modelRow, 1) + " --new-window --window-size=640,640";
+                        Process process = Runtime.getRuntime().exec(new String[] {"bash", "-l", "-c", chromecmd});
+
                     } catch (Exception er) {
                         er.printStackTrace();
                     }
@@ -85,9 +78,34 @@ public class Application
 
             JScrollPane scrollpane = new JScrollPane(table);
 
+            JButton btn = new JButton("Cytoscape View");
+            btn.setBounds(0,480,768,30);
+            btn.setVisible(true);
+            
+            btn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    String chromecmd = "open -a 'google chrome' --args --app=http://localhost/cytoscape/ --new-window --window-size=640,640";
+                    Process process = null;
+                    try {
+                        process = Runtime.getRuntime().exec(new String[] {"bash", "-l", "-c", chromecmd});
+                        process.waitFor();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            
+            // btn.doClick();
+            
+            this.window.add(btn);
+            
             this.window.add(scrollpane);
             this.window.setSize(768, 540);
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
